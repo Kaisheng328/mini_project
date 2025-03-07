@@ -1,8 +1,8 @@
 import tkinter as tk
 import subprocess
 from tkinter import *
-
-
+import webbrowser
+from tkinter import messagebox
 
 def show_content(page):
     # Clear previous content
@@ -10,14 +10,44 @@ def show_content(page):
         widget.destroy()
 
     if page == "Home":
-        # Configure grid for home page
-        content_frame.columnconfigure(0, weight=1)
-        content_frame.rowconfigure(0, weight=1)
+        # Clear any existing column and row configurations
+        for i in range(3):  
+            content_frame.columnconfigure(i, weight=0)
+        for i in range(4):  
+            content_frame.rowconfigure(i, weight=0)
         
-        # Home welcome message centered in the grid
-        Label(content_frame, text="🏡 Welcome to the Home Page!", 
-              font=("Arial", 18, "bold"), fg="black", bg="white").grid(row=0, column=0, padx=330, pady=196)
-
+        # Set fixed dimensions
+        content_frame.configure(width=1024, height=512)
+        content_frame.grid_propagate(False)  # Prevent resizing
+        
+        # Configure grid for home page - one column, two rows
+        content_frame.columnconfigure(0, weight=1)
+        content_frame.rowconfigure(0, weight=1)  # Row for welcome message
+        content_frame.rowconfigure(1, weight=0)  # Row for hyperlink
+        
+        # Create a container frame for better centering
+        center_frame = Frame(content_frame, bg="white")
+        center_frame.grid(row=0, column=0)
+        
+        # Home welcome message
+        Label(center_frame, text="🏡 Welcome to the Home Page!", 
+            font=("Arial", 24, "bold"), fg="#333333", bg="white").pack(pady=10)
+        
+        # Hyperlink with improved styling
+        my_link = Label(center_frame, text="Click Here For Live Reading Website", 
+                    font=("Arial", 16), fg="#0066cc", cursor="hand2", bg="white")
+        my_link.pack(pady=10)
+        
+        # Add underline effect on hover
+        def on_enter(e):
+            my_link.config(font=("Arial", 16, "underline"))
+        
+        def on_leave(e):
+            my_link.config(font=("Arial", 16))
+        
+        my_link.bind('<Enter>', on_enter)
+        my_link.bind('<Leave>', on_leave)
+        my_link.bind('<Button-1>', lambda x: webbrowser.open_new("https://fyp-backend-bd5cc.web.app/base"))
     elif page == "Reading":
         for i in range(3):  
             content_frame.columnconfigure(i, weight=0)
@@ -33,7 +63,7 @@ def show_content(page):
         content_frame.rowconfigure(1, weight=1)  # Sensor content row
         
         # Title section
-        title_frame = Frame(content_frame, bg="white")
+        title_frame = Frame(content_frame, bg="#e8eaf6")
         title_frame.grid(row=0, column=0, sticky="ew")
         
         # Configure grid for title frame
@@ -42,7 +72,7 @@ def show_content(page):
         
         # Add title
         Label(title_frame, text="📡 Live Sensor Readings", 
-              font=("Arial", 18, "bold"), fg="black", bg="white").grid(row=0, column=0, pady=10)
+              font=("Arial", 18, "bold"), fg="black", bg="#e8eaf6").grid(row=0, column=0, pady=10)
 
         # Main content container for sensors
         reading_container = Frame(content_frame, bg="white", height=412)
@@ -82,7 +112,7 @@ def show_content(page):
         temperature_label = Label(dht_content, text="Temperature:", 
                                  font=("Arial", 16, "bold"), bg="#e0f7fa")
         temperature_value = Label(dht_content, text="25°C", 
-                                 font=("Arial", 24), bg="#e0f7fa")
+                                 font=("Arial", 24), bg="#e0f7fa", fg="blue")
         
         temperature_label.grid(row=0, column=0, pady=(20, 0))
         temperature_value.grid(row=1, column=0, pady=(5, 20))
@@ -91,7 +121,7 @@ def show_content(page):
         humidity_label = Label(dht_content, text="Humidity:", 
                               font=("Arial", 16, "bold"), bg="#e0f7fa")
         humidity_value = Label(dht_content, text="60%", 
-                              font=("Arial", 24), bg="#e0f7fa")
+                              font=("Arial", 24), bg="#e0f7fa", fg = "#ffd180")
         
         humidity_label.grid(row=2, column=0, pady=(20, 0))
         humidity_value.grid(row=3, column=0, pady=(5, 20))
@@ -132,9 +162,9 @@ def show_content(page):
         Label(accel_frame, text="Acceleration:", 
              font=("Arial", 16, "bold"), bg="#fce4ec").grid(row=0, column=0, pady=(0, 10))
         
-        accel_x = Label(accel_frame, text="X: 0.98", font=("Arial", 14), bg="#fce4ec")
-        accel_y = Label(accel_frame, text="Y: 0.05", font=("Arial", 14), bg="#fce4ec")
-        accel_z = Label(accel_frame, text="Z: -0.02", font=("Arial", 14), bg="#fce4ec")
+        accel_x = Label(accel_frame, text="X: 0.98", font=("Arial", 14), bg="#fce4ec", fg = "#553e1c")
+        accel_y = Label(accel_frame, text="Y: 0.05", font=("Arial", 14), bg="#fce4ec", fg = "#553e1c")
+        accel_z = Label(accel_frame, text="Z: -0.02", font=("Arial", 14), bg="#fce4ec", fg = "#553e1c")
         
         accel_x.grid(row=1, column=0, pady=5)
         accel_y.grid(row=2, column=0, pady=5)
@@ -153,9 +183,9 @@ def show_content(page):
         Label(gyro_frame, text="Gyroscope:", 
              font=("Arial", 16, "bold"), bg="#fce4ec").grid(row=0, column=0, pady=(0, 10))
         
-        gyro_x = Label(gyro_frame, text="X: 0.10", font=("Arial", 14), bg="#fce4ec")
-        gyro_y = Label(gyro_frame, text="Y: 0.15", font=("Arial", 14), bg="#fce4ec")
-        gyro_z = Label(gyro_frame, text="Z: 0.05", font=("Arial", 14), bg="#fce4ec")
+        gyro_x = Label(gyro_frame, text="X: 0.10", font=("Arial", 14), bg="#fce4ec", fg ="#758b42")
+        gyro_y = Label(gyro_frame, text="Y: 0.15", font=("Arial", 14), bg="#fce4ec", fg ="#758b42")
+        gyro_z = Label(gyro_frame, text="Z: 0.05", font=("Arial", 14), bg="#fce4ec", fg ="#758b42")
         
         gyro_x.grid(row=1, column=0, pady=5)
         gyro_y.grid(row=2, column=0, pady=5)
@@ -217,9 +247,312 @@ def show_content(page):
                             width=20)
         all_debug_button.grid(row=3, column=0, columnspan=2, pady=30)
 
-def run_debug():
-    subprocess.run(['python3', 'debug.py'])
+def run_debug(debug_type):
+    if debug_type == "led":
+        # Create a pop-up window for LED debugging
+        led_window = Toplevel()
+        led_window.title("Debug LED")
+        led_window.geometry("500x300")
+        led_window.configure(bg="#f0f0f0")
+        
+        # Make the window modal (user must interact with it before returning to main app)
+        led_window.grab_set()
+        
+        # Center the window on screen
+        led_window.update_idletasks()
+        width = led_window.winfo_width()
+        height = led_window.winfo_height()
+        x = (led_window.winfo_screenwidth() // 2) - (width // 2)
+        y = (led_window.winfo_screenheight() // 2) - (height // 2)
+        led_window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+        
+        # Variables to track the state of each LED
+        first_led_ok = BooleanVar()
+        second_led_ok = BooleanVar()
+        
+        # Function to handle the LED diagnostics flow
+        def check_first_led():
+            first_frame.pack_forget()
+            if first_led_ok.get():
+                # If first LED is OK, check second LED
+                second_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
+            else:
+                # If first LED is not OK, show error message
+                error_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
+                error_label.config(text="First LED is not working.\nPlease check the circuit connection and try again.")
+        
+        def check_second_led():
+            second_frame.pack_forget()
+            if second_led_ok.get():
+                # If second LED is OK, show success message
+                success_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
+            else:
+                # If second LED is not OK, show error message
+                error_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
+                error_label.config(text="Second LED is not working.\nPlease check the circuit connection and try again.")
+        
+        def close_window():
+            led_window.grab_release()
+            led_window.destroy()
+        
+        # Create frames for each step of the diagnostic
+        first_frame = Frame(led_window, bg="#f0f0f0")
+        second_frame = Frame(led_window, bg="#f0f0f0")
+        error_frame = Frame(led_window, bg="#f0f0f0")
+        success_frame = Frame(led_window, bg="#f0f0f0")
+        
+        # First LED check
+        Label(first_frame, text="LED Diagnostic", font=("Arial", 16, "bold"), bg="#f0f0f0").pack(pady=10)
+        Label(first_frame, text="Is the first LED (Red) illuminated?", font=("Arial", 12), bg="#f0f0f0").pack(pady=10)
+        
+        button_frame1 = Frame(first_frame, bg="#f0f0f0")
+        button_frame1.pack(pady=20)
+        
+        Button(button_frame1, text="Yes", font=("Arial", 12), bg="#4CAF50", fg="white", width=10,
+              command=lambda: [first_led_ok.set(True), check_first_led()]).pack(side=LEFT, padx=10)
+        Button(button_frame1, text="No", font=("Arial", 12), bg="#F44336", fg="white", width=10,
+              command=lambda: [first_led_ok.set(False), check_first_led()]).pack(side=LEFT, padx=10)
+        
+        # Second LED check
+        Label(second_frame, text="LED Diagnostic", font=("Arial", 16, "bold"), bg="#f0f0f0").pack(pady=10)
+        Label(second_frame, text="Is the second LED (Green) illuminated?", font=("Arial", 12), bg="#f0f0f0").pack(pady=10)
+        
+        button_frame2 = Frame(second_frame, bg="#f0f0f0")
+        button_frame2.pack(pady=20)
+        
+        Button(button_frame2, text="Yes", font=("Arial", 12), bg="#4CAF50", fg="white", width=10,
+              command=lambda: [second_led_ok.set(True), check_second_led()]).pack(side=LEFT, padx=10)
+        Button(button_frame2, text="No", font=("Arial", 12), bg="#F44336", fg="white", width=10,
+              command=lambda: [second_led_ok.set(False), check_second_led()]).pack(side=LEFT, padx=10)
+        
+        # Error frame
+        Label(error_frame, text="Error Detected", font=("Arial", 16, "bold"), fg="#F44336", bg="#f0f0f0").pack(pady=10)
+        error_label = Label(error_frame, text="", font=("Arial", 12), bg="#f0f0f0", wraplength=400)
+        error_label.pack(pady=10)
+        
+        # Add an icon or illustration for error
+        Label(error_frame, text="❌", font=("Arial", 48), fg="#F44336", bg="#f0f0f0").pack(pady=10)
+        
+        Button(error_frame, text="Close", font=("Arial", 12), bg="#555555", fg="white", width=10,
+              command=close_window).pack(pady=10)
+        
+        # Success frame
+        Label(success_frame, text="Diagnostic Complete", font=("Arial", 16, "bold"), fg="#4CAF50", bg="#f0f0f0").pack(pady=10)
+        Label(success_frame, text="All LEDs are working correctly!", font=("Arial", 12), bg="#f0f0f0").pack(pady=10)
+        
+        # Add an icon or illustration for success
+        Label(success_frame, text="✅", font=("Arial", 48), fg="#4CAF50", bg="#f0f0f0").pack(pady=10)
+        
+        Button(success_frame, text="Close", font=("Arial", 12), bg="#555555", fg="white", width=10,
+              command=close_window).pack(pady=10)
+        
+        # Start with the first frame
+        first_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
+    
+    elif debug_type == "button":
+         # Create a pop-up window for Button debugging
+        button_window = tk.Toplevel()
+        button_window.title("Debug Button")
+        button_window.geometry("500x300")
+        button_window.configure(bg="#f0f0f0")
+        
+        # Make the window modal (user must interact with it before returning to main app)
+        button_window.grab_set()
+        
+        # Center the window on screen
+        button_window.update_idletasks()
+        width = button_window.winfo_width()
+        height = button_window.winfo_height()
+        x = (button_window.winfo_screenwidth() // 2) - (width // 2)
+        y = (button_window.winfo_screenheight() // 2) - (height // 2)
+        button_window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+        
+        # Variables to track the state of each button
+        button_responses = [tk.BooleanVar() for _ in range(2)]  # For Red, Blue, Green LEDs
+        current_button_index = [0]  # Using list to make it mutable in nested functions
+        button_pins = [10, 9]
+        def button_pressed(pin):
+            # This function will be called when GPIO detects a button press
+            if current_button_index[0] < len(button_responses) and pin == button_pins[current_button_index[0]]:
+                # Record that the button was successfully pressed
+                button_responses[current_button_index[0]].set(True)
+                
+                # Update status label
+                status_label.config(text="Button press detected! ✅", fg="#4CAF50")
+                
+                # Enable the Next/Finish button
+                if current_button_index[0] == len(button_responses) - 1:
+                    next_button.config(text="Finish", state=NORMAL)
+                else:
+                    next_button.config(state=NORMAL)
+        
+        def setup_button_detection():
+            # Set up GPIO event detection for the current button
+            pin = button_pins[current_button_index[0]]
+            GPIO.remove_event_detect(pin)  # Remove any existing detection
+            GPIO.add_event_detect(pin, GPIO.FALLING, callback=button_pressed, bouncetime=300)
+        
+        def move_to_next_button():
+            # If user clicked "No Response", record failure
+            if not button_responses[current_button_index[0]].get():
+                button_responses[current_button_index[0]].set(False)
+            
+            # Remove event detection for current button
+            GPIO.remove_event_detect(button_pins[current_button_index[0]])
+            
+            # Move to next button or show results
+            current_button_index[0] += 1
+            
+            if current_button_index[0] < len(button_responses):
+                # Test the next button
+                test_current_button()
+            else:
+                # All buttons have been tested
+                show_results()
+        
+        def test_current_button():
+            # Hide the start frame if visible
+            start_frame.pack_forget()
+            
+            # Update the question for the current button
+            button_names = ["first (GPIO 10)", "second (GPIO 9)"]
+            question_label.config(text=f"Please press the {button_names[current_button_index[0]]} button")
+            
+            # Reset status label
+            status_label.config(text="Waiting for button press...", fg="#666666")
+            
+            # Disable the Next button until button press is detected
+            next_button.config(text="Next", state=DISABLED)
+            
+            # Set up GPIO detection for this button
+            setup_button_detection()
+            
+            # Show the question frame
+            question_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
+        
+        def no_response():
+            # Record that the button did not work
+            button_responses[current_button_index[0]].set(False)
+            
+            # Enable the Next/Finish button
+            if current_button_index[0] == len(button_responses) - 1:
+                next_button.config(text="Finish", state=NORMAL)
+            else:
+                next_button.config(state=NORMAL)
+        
+        def show_results():
+            # Hide the question frame
+            question_frame.pack_forget()
+            
+            # Check if all buttons are working
+            all_working = all([button.get() for button in button_responses])
+            
+            if all_working:
+                # Show success message
+                success_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
+            else:
+                # Show error message
+                error_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
+                
+                # Determine which buttons are not working
+                button_names = ["GPIO 10 button", "GPIO 9 button"]
+                not_working = [button_names[i] for i in range(len(button_responses)) if not button_responses[i].get()]
+                
+                error_label.config(text=f"The following buttons are not working: {', '.join(not_working)}.\n"
+                                       f"Please check the circuit connections and try again.")
+        
+        def close_window():
+            # Clean up GPIO event detection before closing
+            for pin in button_pins:
+                try:
+                    GPIO.remove_event_detect(pin)
+                except:
+                    pass
+            
+            button_window.grab_release()
+            button_window.destroy()
+        
+        def start_test():
+            # Hide the start frame
+            start_frame.pack_forget()
+            # Start testing the first button
+            test_current_button()
+        
+        # Create frames for each step of the diagnostic
+        start_frame = tk.Frame(button_window, bg="#f0f0f0")
+        question_frame = tk.Frame(button_window, bg="#f0f0f0")
+        error_frame = tk.Frame(button_window, bg="#f0f0f0")
+        success_frame = tk.Frame(button_window, bg="#f0f0f0")
+        
+        # Start frame
+        tk.Label(start_frame, text="Button Diagnostic", font=("Arial", 16, "bold"), bg="#f0f0f0").pack(pady=10)
+        tk.Label(start_frame, text="This test will check each button in sequence.\n"
+                              "You will need to press each button when prompted.", 
+              font=("Arial", 12), bg="#f0f0f0", justify=LEFT).pack(pady=10)
+        
+        tk.Button(start_frame, text="Start Test", font=("Arial", 12), bg="#4CAF50", fg="white", width=10,
+              command=start_test).pack(pady=20)
+        
+        # Question frame
+        tk.Label(question_frame, text="Button Diagnostic", font=("Arial", 16, "bold"), bg="#f0f0f0").pack(pady=10)
+        question_label = tk.Label(question_frame, text="", font=("Arial", 12), bg="#f0f0f0")
+        question_label.pack(pady=10)
+        
+        status_label = tk.Label(question_frame, text="Waiting for button press...", font=("Arial", 12), fg="#666666", bg="#f0f0f0")
+        status_label.pack(pady=10)
+        
+        button_frame = tk.Frame(question_frame, bg="#f0f0f0")
+        button_frame.pack(pady=20)
+        
+        tk.Button(button_frame, text="No Response", font=("Arial", 12), bg="#F44336", fg="white", width=12,
+              command=no_response).pack(side=LEFT, padx=10)
+              
+        next_button = tk.Button(button_frame, text="Next", font=("Arial", 12), bg="#007acc", fg="white", width=10,
+                           state=DISABLED, command=move_to_next_button)
+        next_button.pack(side=LEFT, padx=10)
+        
+        # Error frame
+        tk.Label(error_frame, text="Error Detected", font=("Arial", 16, "bold"), fg="#F44336", bg="#f0f0f0").pack(pady=10)
+        error_label = tk.Label(error_frame, text="", font=("Arial", 12), bg="#f0f0f0", wraplength=400)
+        error_label.pack(pady=10)
+        
+        # Add an icon or illustration for error
+        tk.Label(error_frame, text="❌", font=("Arial", 48), fg="#F44336", bg="#f0f0f0").pack(pady=10)
+        
+        tk.Button(error_frame, text="Close", font=("Arial", 12), bg="#555555", fg="white", width=10,
+              command=close_window).pack(pady=10)
+        
+        # Success frame
+        tk.Label(success_frame, text="Diagnostic Complete", font=("Arial", 16, "bold"), fg="#4CAF50", bg="#f0f0f0").pack(pady=10)
+        tk.Label(success_frame, text="All buttons are working correctly!", font=("Arial", 12), bg="#f0f0f0").pack(pady=10)
+        
+        # Add an icon or illustration for success
+        tk.Label(success_frame, text="✅", font=("Arial", 48), fg="#4CAF50", bg="#f0f0f0").pack(pady=10)
+        
+        tk.Button(success_frame, text="Close", font=("Arial", 12), bg="#555555", fg="white", width=10,
+              command=close_window).pack(pady=10)
+        
+        # Start with the start frame
+        start_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
+    
+    elif debug_type == "dht22":
+        # DHT22 debugging code will go here (implement later)
+        messagebox.showinfo("Debug DHT22", "DHT22 debugging will be implemented next")
+    
+    elif debug_type == "motion":
+        # Motion sensor debugging code will go here (implement later)
+        messagebox.showinfo("Debug Motion", "Motion sensor debugging will be implemented next")
+    
+    elif debug_type == "all":
+        messagebox.showinfo("Debug All", "Running all debug tests sequentially")
 
+        def run_all_tests():
+            run_debug("led")
+            window.after(3000, lambda: run_debug("button"))
+            window.after(6000, lambda: run_debug("dht22"))
+            window.after(9000, lambda: run_debug("motion"))
+
+        window.after(1000, run_all_tests)  # Start after a small delay
 
 
 # Main Window
