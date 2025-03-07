@@ -3,11 +3,19 @@ import subprocess
 from tkinter import *
 import board
 import adafruit_dht
+import schedule
 import time
 import mpu6050
 from tkinter import messagebox
 import RPi.GPIO as GPIO
 import webbrowser
+import BlynkLib
+
+BLYNK_AUTH_TOKEN = 'token here' #paste your token here
+# Initialize Blynk
+blynk = BlynkLib.Blynk(BLYNK_AUTH_TOKEN)
+
+
 def show_content(page):
     global temperature_value, humidity_value, accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z
     # Clear previous content
@@ -1129,6 +1137,61 @@ def update_motion_sensor_readings():
 
     # Call function again after 1 second
     content_frame.after(1000, update_motion_sensor_readings)
+    
+def send_dht_data():
+    try:
+        temperature = dhtDevice.temperature
+        humidity = dhtDevice.humidity
+
+        if temperature is not None and humidity is not None:
+            temperature_value.config(text=f"{temperature:.1f}°C")
+            humidity_value.config(text=f"{humidity:.1f}%")
+
+            # Send to Blynk (Virtual Pins V0 & V1)
+            blynk.virtual_write(0, temperature)
+            blynk.virtual_write(1, humidity)
+            print(f"Sent to Blynk: Temperature = {temperature}°C, Humidity = {humidity}%")
+        else:
+            print("DHT22 returned None values")
+
+    except Exception as error:
+        print(f"Error reading DHT22: {error}")
+PIR_PIN = 4  # Adjust this based on your GPIO setup
+GPIO.setup(PIR_PIN, GPIO.IN)        
+def motion_detected(channel):
+    motion_state = GPIO.input(PIR_PIN)
+    
+    # Send motion data to Blynk (Virtual Pin V2)
+    blynk.virtual_write(2, motion_state)
+    print(f"Motion Detected: {motion_state}")
+
+GPIO.add_event_detect(PIR_PIN, GPIO.RISING, callback=motion_detected, bouncetime=500)
+# Schedule this function to run every 20 seconds
+schedule.every(20).seconds.do(send_dht_data)
+
+def update_blynk():
+    schedule.run_pending()  # Run scheduled tasks
+    window.after(1000, update_blynk)  # Call this function again in 1 second
+
+LED_PINS = {0: 17, 1: 27, 2: 22}  # Red, Blue, Green
+for pin in LED_PINS.values():
+    GPIO.setup(pin, GPIO.OUT)
+    GPIO.output(pin, GPIO.LOW)  # Turn off initially
+
+@blynk.on("V3")  # LED 1 Control
+def led1_handler(value):
+    GPIO.output(LED_PINS[0], int(value[0]))
+    print(f"LED 1 {'ON' if int(value[0]) else 'OFF'}")
+
+@blynk.on("V4")  # LED 2 Control
+def led2_handler(value):
+    GPIO.output(LED_PINS[1], int(value[0]))
+    print(f"LED 2 {'ON' if int(value[0]) else 'OFF'}")
+
+@blynk.on("V5")  # LED 3 Control
+def led3_handler(value):
+    GPIO.output(LED_PINS[2], int(value[0]))
+    print(f"LED 3 {'ON' if int(value[0]) else 'OFF'}")
 
 #GPIO Configuration
 GPIO.setmode(GPIO.BCM)
